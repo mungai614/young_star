@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background: #f5f7fa;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .register-container {
+      background: #ffffff;
+      padding: 2.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 380px;
+      box-sizing: border-box;
+    }
+    .register-container h2 {
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #212529;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    input {
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #ced4da;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      width: 100%;
+    }
+    input:focus {
+      outline: none;
+      border-color: #0d6efd;
+      box-shadow: 0 0 6px rgba(13, 110, 253, 0.3);
+    }
+    button {
+      padding: 0.75rem;
+      background-color: #0d6efd;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0b5ed7;
+    }
+    .login-link {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+    .login-link a {
+      color: #0d6efd;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-container">
+    <h2>Register</h2>
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+      {{ form.username }}
+
+      <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+      {{ form.email }}
+
+      <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+      {{ form.password1 }}
+
+      <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+      {{ form.password2 }}
+
+      <button type="submit">Register</button>
+    </form>
+
+    <p class="login-link">
+      Already have an account? <a href="{% url 'login' %}">Login</a>
+    </p>
+  </div>
+
+</body>
+</html>
