@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: youngstar-django
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn youngstar.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: youngstar.settings
+      - key: SECRET_KEY
+        value: your-secret-key
+      - key: DEBUG
+        value: False
