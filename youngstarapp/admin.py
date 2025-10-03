@@ -9,3 +9,12 @@ class ContributionAdmin(admin.ModelAdmin):
     list_display = ('user', 'amount', 'month', 'year', 'created_at')
     list_filter = ('month', 'year')
     search_fields = ('user__username',)
+
+from django.contrib import admin
+from .models import LoanInquiry
+
+@admin.register(LoanInquiry)
+class LoanInquiryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'amount', 'banked', 'submitted_at')
+    list_filter = ('banked', 'submitted_at')
+    search_fields = ('user__username', 'reason')

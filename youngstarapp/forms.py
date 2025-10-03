@@ -68,3 +68,16 @@ class ContributionFilterForm(forms.Form):
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label="Member")
     month = forms.ChoiceField(choices=MONTH_CHOICES, required=False)
     year = forms.ChoiceField(choices=YEAR_CHOICES, required=False)
+
+from django import forms
+from .models import LoanInquiry
+
+class LoanInquiryForm(forms.ModelForm):
+    class Meta:
+        model = LoanInquiry
+        fields = ['amount', 'reason', 'banked']
+        widgets = {
+            'reason': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'banked': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

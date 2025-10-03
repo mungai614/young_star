@@ -118,3 +118,21 @@ def admin_dashboard(request):
         'filter_form': form,
     }
     return render(request, 'admin_dashboard.html', context)
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import LoanInquiryForm
+
+@login_required
+def loan_inquiry_view(request):
+    if request.method == 'POST':
+        form = LoanInquiryForm(request.POST)
+        if form.is_valid():
+            inquiry = form.save(commit=False)
+            inquiry.user = request.user
+            inquiry.save()
+            return redirect('home')  # or a "thank you" page
+    else:
+        form = LoanInquiryForm()
+
+    return render(request, 'loan_inquiry.html', {'form': form})
