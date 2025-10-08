@@ -1,10 +1,9 @@
-# core/forms.py
-
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Contribution
+from .models import Contribution, LoanInquiry
 
+# Registration form
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
@@ -12,6 +11,7 @@ class RegistrationForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
+# Contribution form
 class ContributionForm(forms.ModelForm):
     user = forms.ModelChoiceField(
         queryset=User.objects.all(),
@@ -19,9 +19,9 @@ class ContributionForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'})
     )
     month = forms.ChoiceField(
-        choices=[(m, m) for m in [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
+        choices=[(i, name) for i, name in [
+            (1, 'January'), (2, 'February'), (3, 'March'), (4, 'April'), (5, 'May'), (6, 'June'),
+            (7, 'July'), (8, 'August'), (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December')
         ]],
         widget=forms.Select(attrs={'class': 'form-select'})
     )
@@ -51,27 +51,19 @@ class ContributionForm(forms.ModelForm):
                     f"Contribution for {month} {year} already exists for {user.username}."
                 )
 
-from django import forms
-from django.contrib.auth.models import User
-
-MONTH_CHOICES = [
-    ('', 'All Months'),
-    ('January', 'January'), ('February', 'February'), ('March', 'March'),
-    ('April', 'April'), ('May', 'May'), ('June', 'June'),
-    ('July', 'July'), ('August', 'August'), ('September', 'September'),
-    ('October', 'October'), ('November', 'November'), ('December', 'December')
-]
-
-YEAR_CHOICES = [('', 'All Years')] + [(str(y), str(y)) for y in range(2020, 2031)]
+# Filter form for searching contributions
+MONTH_CHOICES = [('', 'All Months')] + [(i, name) for i, name in [
+    (1, 'January'), (2, 'February'), (3, 'March'), (4, 'April'), (5, 'May'), (6, 'June'),
+    (7, 'July'), (8, 'August'), (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December')
+]]
+YEAR_CHOICES = [('', 'All Years')] + [(y, y) for y in range(2020, 2031)]
 
 class ContributionFilterForm(forms.Form):
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False, label="Member")
     month = forms.ChoiceField(choices=MONTH_CHOICES, required=False)
     year = forms.ChoiceField(choices=YEAR_CHOICES, required=False)
 
-from django import forms
-from .models import LoanInquiry
-
+# Loan inquiry form
 class LoanInquiryForm(forms.ModelForm):
     class Meta:
         model = LoanInquiry
