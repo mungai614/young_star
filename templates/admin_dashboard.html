@@ -1,48 +1,166 @@
 {% load static %}
+{% load widget_tweaks %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Dashboard</title>
-    <link rel="shortcut icon" href="{% static 'images/admin1.png' %}" type="image/x-icon" />
+
+  <link rel="shortcut icon" href="{% static 'images/admin1.png' %}" type="image/x-icon" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    {% load widget_tweaks %}
 
   <style>
-
     body {
-      background-color: #f8f9fa;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      overflow-x: hidden;
     }
-    .container {
-      margin-top: 40px;
-      max-width: 900px;
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+
+    /* Sidebar */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100%;
+      background: #0d6efd;
+      color: white;
+      transition: left 0.3s;
+      padding-top: 60px;
+      z-index: 9999;
     }
-    h1 {
+
+    #sidebar.active {
+      left: 0;
+    }
+
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    #sidebar ul li {
+      padding: 15px 20px;
+    }
+
+    #sidebar ul li a {
+      color: white;
+      text-decoration: none;
+      display: block;
+    }
+
+    #sidebar ul li a:hover {
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+    }
+
+    /* Main content */
+    #content {
+      margin-left: 0;
+      transition: margin-left 0.3s;
+      padding: 20px;
+    }
+
+    #content.active {
+      margin-left: 250px;
+    }
+
+    /* Toggle button */
+    #sidebarCollapse {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 10000;
+    }
+
+    .summary-card {
+      background: linear-gradient(135deg, #198754, #28a745);
+      color: white;
+      border-radius: 12px;
+      padding: 20px;
       margin-bottom: 30px;
-      font-weight: 700;
-      color: #343a40;
       text-align: center;
     }
-    .filter-form label {
-      font-weight: 600;
+
+    .share-table tbody tr:hover {
+      background-color: #e2f0d9;
+      cursor: pointer;
     }
+
     table th, table td {
       vertical-align: middle !important;
+      text-align: center;
+    }
+
+    .table thead th {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .share-table thead th {
+      background-color: #198754;
+      color: white;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h1>Admin Dashboard - Contributions</h1>
 
-    <!-- Filter Form -->
-    <form method="get" class="row g-3 filter-form mb-4">
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <ul>
+    <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+    <li><a href="{% url 'add_contribution' %}">Add Contribution</a></li>
+    <li><a href="{% url 'home' %}">Home</a></li>
+    <li><a href="/admin/">Django Admin</a></li>
+    <li><a href="{% url 'logout' %}">Logout</a></li>
+  </ul>
+</div>
+
+<!-- Page content -->
+<div id="content">
+  <button class="btn btn-primary" id="sidebarCollapse">☰ Menu</button>
+
+  <div class="container-fluid mt-4">
+
+    <h1 class="text-center mb-4">Admin Dashboard</h1>
+
+    <!-- TOTAL POOL SUMMARY -->
+    <div class="summary-card mb-4">
+      <h4>Total Contribution Pool</h4>
+      <h2>sh{{ total_contributed }}</h2>
+    </div>
+
+    <!-- MEMBER SHARE SECTION (TOP) -->
+    <h3 class="mb-3">Member Contribution Shares</h3>
+    <div class="table-responsive mb-5" style="max-height: 300px; overflow-y: auto;">
+      <table class="table table-bordered share-table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Total Contributed sh</th>
+            <th>Share (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in shares %}
+          <tr onclick="window.location.href='{% url 'member_detail' s.user.id %}'">
+            <td>{{ s.user.username }}</td>
+            <td>{{ s.total_contributed }}</td>
+            <td>{{ s.percentage }}%</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-muted">No data available.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FILTER FORM -->
+    <form method="get" class="row g-3 mb-4">
       <div class="col-md-4">
         {{ filter_form.user.label_tag }}
         {{ filter_form.user|add_class:"form-select" }}
@@ -60,46 +178,48 @@
       </div>
     </form>
 
-    <!-- Contributions Table -->
-    <div class="table-responsive">
+    <!-- CONTRIBUTIONS TABLE -->
+    <h3 class="mb-3">All Contributions</h3>
+    <div class="table-responsive mb-5">
       <table class="table table-striped table-bordered">
-        <thead class="table-primary">
+        <thead>
           <tr>
-            <th>User</th>
+            <th>Member</th>
             <th>Month</th>
             <th>Year</th>
-            <th>Amount</th>
+            <th>Amount (sh)</th>
             <th>Date Added</th>
           </tr>
         </thead>
         <tbody>
-          {% if contributions %}
-            {% for c in contributions %}
-              <tr>
-                <td>{{ c.user.username }}</td>
-                <td>{{ c.month }}</td>
-                <td>{{ c.year }}</td>
-                <td>${{ c.amount }}</td>
-                <td>{{ c.created_at|date:"M d, Y" }}</td>
-              </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="5" class="text-center text-muted">No contributions found.</td>
-            </tr>
-          {% endif %}
+          {% for c in contributions %}
+          <tr>
+            <td>{{ c.user.username }}</td>
+            <td>{{ c.month }}</td>
+            <td>{{ c.year }}</td>
+            <td>{{ c.amount }}</td>
+            <td>{{ c.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-muted">No contributions found.</td>
+          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
 
-    <div class="mt-4 text-center">
-      <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
-      <a href="{% url 'add_contribution' %}" class="btn btn-secondary">Add Amount</a>
-      <a href="{% url 'logout' %}" class="btn btn-danger ms-2">Logout</a>
-        <a href="/admin/" class="btn btn-info ms-2">Go to Admin</a>
-    </div>
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const content = document.getElementById('content');
+  document.getElementById('sidebarCollapse').addEventListener('click', function () {
+    sidebar.classList.toggle('active');
+    content.classList.toggle('active');
+  });
+</script>
 </body>
 </html>

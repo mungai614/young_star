@@ -39,7 +39,7 @@ class ContributionAdmin(admin.ModelAdmin):
                 )
 
         except (AttributeError, KeyError):
-            pass
+            pass 
 
         return response
 
